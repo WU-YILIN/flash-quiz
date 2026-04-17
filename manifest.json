@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "minAppVersion": "1.5.0",
   "description": "Generate note-based multiple-choice quizzes and review them with a built-in memory scheduler.",
-  "author": "OpenAI Codex",
-  "authorUrl": "https://openai.com",
+  "author": "Levi",
+  "authorUrl": "https://github.com/WU-YILIN",
   "isDesktopOnly": false
 }
