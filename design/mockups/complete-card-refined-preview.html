@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flash Quiz Complete Card Refined Preview</title>
+    <style>
+      :root {
+        --bg: #141414;
+        --card:
+          radial-gradient(circle at top left, rgba(255, 255, 255, 0.96), transparent 28%),
+          radial-gradient(circle at 80% 16%, rgba(255, 210, 126, 0.24), transparent 18%),
+          linear-gradient(180deg, #fffaf2 0%, #f5e8d6 100%);
+        --text: #2f261d;
+        --muted: #7d6a59;
+        --line: rgba(214, 122, 63, 0.16);
+        --accent: #c86a31;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        color: var(--text);
+      }
+
+      .frame {
+        position: relative;
+        width: min(736px, calc(100vw - 32px));
+        padding: 24px 24px 20px;
+        border-radius: 30px;
+        background: var(--card);
+        box-shadow:
+          0 24px 54px rgba(0, 0, 0, 0.28),
+          inset 0 1px 0 rgba(255, 255, 255, 0.92);
+        overflow: visible;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 156px;
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .left {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 30px;
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+      }
+
+      .summary {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding-top: 2px;
+      }
+
+      .summary-line {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        color: #6e5948;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .dot {
+        opacity: 0.35;
+      }
+
+      .badge {
+        min-height: 30px;
+        padding: 0 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        border: 1px solid rgba(214, 122, 63, 0.18);
+        background: linear-gradient(180deg, #fff1e2 0%, #f7ddc0 100%);
+        color: var(--accent);
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .summary-hint {
+        color: #8f7967;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        padding-top: 0;
+      }
+
+      .btn {
+        min-width: 124px;
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(214, 122, 63, 0.18);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .btn.primary {
+        background: linear-gradient(180deg, #de8243 0%, #ca6b31 100%);
+        color: #fff8ef;
+      }
+
+      .btn.secondary {
+        background: rgba(255, 248, 240, 0.84);
+        color: #584636;
+      }
+
+      .side {
+        display: flex;
+        align-items: stretch;
+      }
+
+      .score {
+        width: 100%;
+        border-radius: 22px;
+        border: 1px solid rgba(214, 122, 63, 0.18);
+        background:
+          radial-gradient(circle at top, rgba(255, 255, 255, 0.94), transparent 44%),
+          linear-gradient(180deg, #fff3e3 0%, #f2dcc0 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.92),
+          0 14px 30px rgba(191, 119, 63, 0.1),
+          0 0 0 8px rgba(255, 212, 140, 0.08);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        text-align: center;
+        padding: 14px 10px;
+      }
+
+      .score-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #997253;
+      }
+
+      .score-value {
+        font-size: 44px;
+        line-height: 1;
+        letter-spacing: -0.07em;
+        font-weight: 800;
+        color: var(--accent);
+      }
+
+      .score-note {
+        font-size: 11px;
+        color: #826854;
+      }
+
+      .firework {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle, rgba(255, 255, 255, 0.96) 0 12%, transparent 13%),
+          repeating-conic-gradient(
+            from 0deg,
+            rgba(255, 191, 88, 0.98) 0deg 12deg,
+            transparent 12deg 24deg,
+            rgba(255, 114, 94, 0.95) 24deg 36deg,
+            transparent 36deg 48deg,
+            rgba(125, 204, 122, 0.94) 48deg 60deg,
+            transparent 60deg 72deg,
+            rgba(118, 180, 255, 0.94) 72deg 84deg,
+            transparent 84deg 96deg
+          );
+        mask: radial-gradient(circle, transparent 0 24%, #000 26% 100%);
+        opacity: 0.95;
+      }
+
+      .fw1 { top: -20px; left: 34px; transform: scale(4.2); }
+      .fw2 { top: -26px; right: 82px; transform: scale(3.8); }
+      .fw3 { bottom: -18px; left: 48%; transform: scale(4.4); }
+      .fw4 { bottom: -12px; right: 26px; transform: scale(3.9); }
+
+      @media (max-width: 760px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .actions {
+          padding-top: 0;
+        }
+
+        .score {
+          min-height: 136px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <div class="firework fw1"></div>
+      <div class="firework fw2"></div>
+      <div class="firework fw3"></div>
+      <div class="firework fw4"></div>
+
+      <div class="layout">
+        <section class="left">
+          <div>
+            <h1>本轮 quiz 已完成</h1>
+          </div>
+
+          <div class="summary">
+            <div class="summary-line">
+              <span>已完成 1 题</span>
+              <span class="dot">·</span>
+              <span>平均用时 6 秒</span>
+              <span class="dot">·</span>
+              <span class="badge">掌握很好</span>
+            </div>
+            <div class="summary-hint">建议继续下一轮复习，把到期题先做完。</div>
+          </div>
+
+          <div class="actions">
+            <div class="btn primary">再来一轮</div>
+            <div class="btn secondary">关闭</div>
+          </div>
+        </section>
+
+        <aside class="side">
+          <div class="score">
+            <div class="score-label">本轮成绩</div>
+            <div class="score-value">100%</div>
+            <div class="score-note">1 / 1 题答对</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

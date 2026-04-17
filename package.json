@@ -1,0 +1,30 @@
+{
+  "name": "flash-quiz",
+  "version": "0.1.0",
+  "description": "An Obsidian plugin that turns notes into reviewable multiple-choice quizzes.",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+  },
+  "keywords": [
+    "obsidian",
+    "obsidian-plugin",
+    "quiz",
+    "spaced-repetition"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "esbuild": "^0.25.5",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@fullcalendar/core": "^6.1.20",
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "obsidian": "latest"
+  }
+}

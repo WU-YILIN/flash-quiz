@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flash Quiz Plugin Mockup</title>
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --panel: #fbf7ef;
+      --panel-strong: #fffdf7;
+      --ink: #1f1c18;
+      --ink-2: #3a342c;
+      --muted: #6c6358;
+      --muted-2: #9a8f84;
+      --line: rgba(54, 42, 28, 0.12);
+      --accent: #d96c3c;
+      --accent-deep: #b9552a;
+      --accent-soft: rgba(217, 108, 60, 0.12);
+      --success: #2d8b57;
+      --success-soft: rgba(45, 139, 87, 0.1);
+      --danger: #c84d4d;
+      --danger-soft: rgba(200, 77, 77, 0.08);
+      --gold: #d3a83f;
+      --shadow: 0 24px 56px rgba(71, 48, 22, 0.14);
+      --shadow-sm: 0 4px 16px rgba(71, 48, 22, 0.08);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 10% 0%, rgba(217, 108, 60, 0.13) 0%, transparent 40%),
+        radial-gradient(ellipse at 90% 10%, rgba(211, 168, 63, 0.11) 0%, transparent 36%),
+        linear-gradient(160deg, #f7f2e8 0%, #ede4d4 100%);
+      padding: 36px 32px;
+    }
+
+    .page {
+      max-width: 1480px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .hero {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      padding: 8px 6px 2px;
+    }
+
+    .eyebrow {
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 58px);
+      line-height: 0.94;
+      max-width: 760px;
+    }
+
+    .hero p {
+      margin: 12px 0 0;
+      max-width: 720px;
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(77, 57, 30, 0.11);
+      backdrop-filter: blur(6px);
+      color: #483d31;
+      font-size: 13px;
+    }
+
+    /* ── Panel shell ── */
+    .panel {
+      background: rgba(255, 252, 246, 0.82);
+      border: 1px solid rgba(70, 48, 23, 0.09);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(14px);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 100%);
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .panel-subtitle {
+      margin-top: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── Segmented control ── */
+    .segmented {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 999px;
+      background: rgba(61, 48, 32, 0.07);
+      gap: 2px;
+    }
+
+    .segmented span {
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: default;
+      transition: all 0.15s;
+    }
+
+    .segmented .active {
+      background: var(--panel-strong);
+      color: var(--ink);
+      box-shadow: 0 2px 8px rgba(47, 36, 22, 0.1);
+    }
+
+    /* ── Quiz shell / window ── */
+    .quiz-shell {
+      padding: 18px;
+      background: linear-gradient(150deg, rgba(255,255,255,0.35) 0%, rgba(255,246,232,0.6) 100%);
+    }
+
+    .quiz-window {
+      border-radius: var(--radius-xl);
+      background: var(--panel-strong);
+      border: 1px solid rgba(61, 45, 23, 0.1);
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(72, 43, 14, 0.1);
+    }
+
+    /* ── Topbar ── */
+    .window-top {
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(180deg, #fff9ed 0%, #fff6e6 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .window-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 5px 11px;
+      font-size: 11.5px;
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .pill.neutral {
+      background: rgba(61, 48, 32, 0.07);
+      color: #5a4c3e;
+      font-weight: 600;
+    }
+
+    /* ── Question area ── */
+    .window-main {
+      padding: 20px 20px 16px;
+    }
+
+    .question-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(211, 168, 63, 0.11);
+      color: #8a6512;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .question {
+      margin: 0 0 16px;
+      font-size: 20px;
+      line-height: 1.45;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+    }
+
+    /* ── Choices ── */
+    .choices {
+      display: grid;
+      gap: 9px;
+      margin-bottom: 14px;
+    }
+
+    .choice {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: rgba(255, 250, 242, 0.9);
+      border: 1px solid rgba(77, 57, 30, 0.1);
+      cursor: default;
+      transition: border-color 0.12s, background 0.12s;
+    }
+
+    .choice:hover:not(.correct):not(.wrong) {
+      border-color: rgba(217, 108, 60, 0.3);
+      background: rgba(255, 248, 238, 1);
+    }
+
+    .choice.correct {
+      background: var(--success-soft);
+      border-color: rgba(45, 139, 87, 0.28);
+    }
+
+    .choice.wrong {
+      background: var(--danger-soft);
+      border-color: rgba(200, 77, 77, 0.24);
+    }
+
+    .choice-letter {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 13px;
+      background: rgba(240, 231, 216, 0.8);
+      color: #5a4a36;
+      flex-shrink: 0;
+    }
+
+    .choice.correct .choice-letter {
+      background: rgba(45, 139, 87, 0.16);
+      color: var(--success);
+    }
+
+    .choice.wrong .choice-letter {
+      background: rgba(200, 77, 77, 0.16);
+      color: var(--danger);
+    }
+
+    .choice-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--ink-2);
+    }
+
+    /* ── Feedback ── */
+    .feedback {
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-top: 4px;
+    }
+
+    .feedback.is-correct {
+      background: linear-gradient(135deg, rgba(45,139,87,0.09), rgba(45,139,87,0.04));
+      border: 1px solid rgba(45, 139, 87, 0.18);
+    }
+
+    .feedback.is-wrong {
+      background: linear-gradient(135deg, rgba(200,77,77,0.08), rgba(200,77,77,0.03));
+      border: 1px solid rgba(200, 77, 77, 0.18);
+    }
+
+    .feedback-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .feedback-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .feedback.is-correct .feedback-icon {
+      background: rgba(45, 139, 87, 0.18);
+      color: var(--success);
+    }
+
+    .feedback.is-wrong .feedback-icon {
+      background: rgba(200, 77, 77, 0.18);
+      color: var(--danger);
+    }
+
+    .feedback-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .feedback-correct-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--success);
+      background: rgba(45, 139, 87, 0.1);
+      padding: 2px 8px;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    .feedback.is-wrong .feedback-correct-label {
+      color: var(--success);
+    }
+
+    .feedback p {
+      margin: 0;
+      color: #4a5450;
+      line-height: 1.65;
+      font-size: 13px;
+    }
+
+    /* ── Footer ── */
+    .window-footer {
+      border-top: 1px solid var(--line);
+      padding: 14px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.3), rgba(255,255,255,0.05));
+    }
+
+    .footer-progress {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .progress-label {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .bar {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(61, 48, 32, 0.08);
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      width: 58%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--accent));
+      border-radius: inherit;
+    }
+
+    .progress-pct {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-deep);
+      white-space: nowrap;
+    }
+
+    .footer-source {
+      font-size: 11.5px;
+      color: var(--muted-2);
+      margin-bottom: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .footer-source strong {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* ── Buttons ── */
+    .button-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: var(--radius-md);
+      padding: 10px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: default;
+      letter-spacing: 0.01em;
+    }
+
+    .btn.primary {
+      color: white;
+      background: linear-gradient(160deg, var(--accent) 0%, var(--accent-deep) 100%);
+      box-shadow: 0 6px 18px rgba(185, 85, 42, 0.24);
+    }
+
+    .btn.secondary {
+      color: var(--ink-2);
+      background: rgba(61, 48, 32, 0.07);
+      border: 1px solid rgba(61, 48, 32, 0.08);
+    }
+
+    /* ── Settings panel ── */
+    .settings-body {
+      padding: 18px;
+      display: grid;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.06));
+    }
+
+    .section-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 252, 246, 0.9);
+      padding: 16px;
+    }
+
+    .section-card h3 {
+      margin: 0 0 4px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .section-card > p {
+      margin: 0 0 12px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .field-grid.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #5e5144;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .input,
+    .fake-list {
+      width: 100%;
+      border: 1px solid rgba(77, 57, 30, 0.12);
+      background: #fffefb;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .fake-list {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      background: #fff8ef;
+      border: 1px solid rgba(77, 57, 30, 0.09);
+      font-size: 13px;
+    }
+
+    .path {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 260px;
+      color: #514739;
+      font-size: 13px;
+    }
+
+    .micro {
+      font-size: 11px;
+      color: var(--muted-2);
+      margin-top: 2px;
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      border-radius: var(--radius-md);
+      padding: 14px;
+      background: linear-gradient(160deg, #fff9ef, #fff3de);
+      border: 1px solid rgba(77, 57, 30, 0.09);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ── Complete card ── */
+    .complete-card {
+      padding: 28px 24px;
+      text-align: center;
+    }
+
+    .complete-badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent-deep);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .complete-score {
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--gold), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 6px;
+    }
+
+    .complete-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .complete-stats {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .complete-stat {
+      text-align: center;
+    }
+
+    .complete-stat strong {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .complete-stat span {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .complete-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* ── Page layout ── */
+
+    .page {
+      max-width: 1480px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .hero {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 24px;
+      padding: 4px 4px 0;
+    }
+
+    .eyebrow {
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 3.2vw, 48px);
+      line-height: 1.0;
+      letter-spacing: -0.02em;
+      max-width: 680px;
+    }
+
+    .hero p {
+      margin: 10px 0 0;
+      max-width: 680px;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--muted);
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+      max-width: 320px;
+    }
+
+    .badge {
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(77, 57, 30, 0.1);
+      backdrop-filter: blur(6px);
+      color: #4a3f33;
+      font-size: 12px;
+    }
+
+    .footer-note {
+      grid-column: 1 / -1;
+      padding: 0 4px 8px;
+      color: var(--muted-2);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 1100px) {
+      .page {
+        grid-template-columns: 1fr;
+      }
+      .badge-row {
+        justify-content: flex-start;
+        max-width: none;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 16px; }
+      .panel-header, .window-top, .window-main, .window-footer,
+      .settings-body, .quiz-shell { padding-left: 14px; padding-right: 14px; }
+      .field-grid.two, .stats-row { grid-template-columns: 1fr; }
+      .footer-actions { flex-direction: column; }
+      .footer-actions .btn { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Obsidian Plugin Mockup</div>
+        <h1>Flash Quiz 用更有欲望打开的方式做记忆强化</h1>
+        <p>左侧是点击插件图标后弹出的 quiz 复习窗口，右侧是插件设置页结构。整体方向不是传统插件那种灰色工具面板，而是更像一张“学习仪表盘”，保留 Obsidian 插件的实用性，但把视觉重心放在答题体验上。</p>
+      </div>
+      <div class="badge-row">
+        <div class="badge">题型：仅选择题</div>
+        <div class="badge">即时反馈：对错 + 简短解释</div>
+        <div class="badge">题库模式：缓存 + 增量更新</div>
+        <div class="badge">复习策略：到期优先，70/30 补新题</div>
+        <div class="badge">设置页语言：中文 / English</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Quiz 弹窗预览</div>
+          <div class="panel-subtitle">用户点击左侧 Ribbon 图标后进入的主界面</div>
+        </div>
+        <div class="segmented">
+          <span class="active">开始复习</span>
+          <span>学习新题</span>
+        </div>
+      </div>
+
+      <div class="quiz-shell">
+        <div class="quiz-window">
+          <div class="window-top">
+            <div class="window-meta">
+              <div class="pill">今日到期 18</div>
+              <div class="pill neutral">当前来源：知识图谱 / LLM 原理</div>
+              <div class="pill neutral">模式：复习优先</div>
+              <div class="pill neutral">UI：中文</div>
+            </div>
+            <div class="micro">下次推荐时间会在答题后自动更新</div>
+          </div>
+
+          <div class="window-main">
+            <div class="question-tag">Question 07 · Weak Memory Boost</div>
+            <div class="question">在 Retrieval-Augmented Generation 流程中，检索阶段的核心价值是什么？</div>
+
+            <div class="choices">
+              <div class="choice wrong">
+                <div class="choice-letter">A</div>
+                <div>让模型输出更长的回答，以便覆盖更多知识点。</div>
+              </div>
+              <div class="choice correct">
+                <div class="choice-letter">B</div>
+                <div>在生成前补充外部上下文，降低模型仅依赖参数记忆回答的风险。</div>
+              </div>
+              <div class="choice">
+                <div class="choice-letter">C</div>
+                <div>把所有笔记压缩成固定向量后，完全替代语言模型的推理过程。</div>
+              </div>
+              <div class="choice">
+                <div class="choice-letter">D</div>
+                <div>直接根据文档标题决定答案，从而减少检索延迟。</div>
+              </div>
+            </div>
+
+            <div class="feedback">
+              <h3>回答错误，正确答案是 B</h3>
+              <p>检索的作用是在生成前把和当前问题最相关的文档片段送入上下文窗口。这样模型不是“凭印象回答”，而是依据外部知识回答，因此更适合基于 Obsidian 笔记做 quiz 和记忆巩固。</p>
+            </div>
+          </div>
+
+          <div class="window-actions">
+            <div class="progress-line">
+              <div class="progress-label">
+                <span>本轮进度 7 / 12</span>
+                <span>正确率 71%</span>
+              </div>
+              <div class="bar"><span></span></div>
+            </div>
+            <div class="button-row">
+              <button class="btn secondary">稍后再看</button>
+              <button class="btn primary">下一题</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">设置页结构预览</div>
+          <div class="panel-subtitle">绑定数据源、配置 LLM、控制题库和复习参数</div>
+        </div>
+        <div class="pill neutral">Settings Tab</div>
+      </div>
+
+      <div class="settings-body">
+        <div class="stats-row">
+          <div class="stat">
+            <strong>246</strong>
+            <span>累计题目数</span>
+          </div>
+          <div class="stat">
+            <strong>18</strong>
+            <span>今日待复习</span>
+          </div>
+          <div class="stat">
+            <strong>4</strong>
+            <span>已绑定来源</span>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>界面语言</h3>
+          <p>这里是插件自身设置页和弹窗界面的语言切换，不是题目内容双语。第一版建议做成全局 UI 语言设置，并支持跟随 Obsidian。</p>
+          <div class="field-grid two">
+            <div class="field">
+              <label>UI Language</label>
+              <div class="input">中文 / English / Follow Obsidian</div>
+            </div>
+            <div class="field">
+              <label>当前生效</label>
+              <div class="input">中文</div>
+            </div>
+            <div class="field">
+              <label>切换方式</label>
+              <div class="input">下拉选择 + 即时生效</div>
+            </div>
+            <div class="field">
+              <label>覆盖范围</label>
+              <div class="input">设置页 / 弹窗 / 提示文案</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>LLM 连接</h3>
+          <p>支持用户自定义 OpenAI 兼容接口，不把供应商写死。后续可以扩展成多 Provider 模式。</p>
+          <div class="field-grid two">
+            <div class="field">
+              <label>Base URL</label>
+              <div class="input">https://api.openai.com/v1</div>
+            </div>
+            <div class="field">
+              <label>Model</label>
+              <div class="input">gpt-4.1-mini</div>
+            </div>
+            <div class="field">
+              <label>API Key</label>
+              <div class="input">sk-•••••••••••••••••••••••</div>
+            </div>
+            <div class="field">
+              <label>请求超时</label>
+              <div class="input">60000 ms</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>内容来源绑定</h3>
+          <p>用户可以绑定单个文件或整个文件夹。插件根据文档哈希做增量生成，避免每次全量重建题库。</p>
+          <div class="fake-list">
+            <div class="list-item">
+              <div>
+                <div class="path">D:\Vault\AI Notes\RAG\</div>
+                <div class="micro">文件夹 · 上次同步 2026-04-13 20:42</div>
+              </div>
+              <div class="pill neutral">启用中</div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div class="path">D:\Vault\LLM\prompt-engineering.md</div>
+                <div class="micro">文件 · 上次同步 2026-04-13 19:08</div>
+              </div>
+              <div class="pill neutral">启用中</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>生成与复习参数</h3>
+          <p>第一版只保留必要参数，把复杂度压在内部算法里，而不是让用户面对一堆难懂开关。</p>
+          <div class="field-grid two">
+            <div class="field">
+              <label>每篇文档默认生成题数</label>
+              <div class="input">10</div>
+            </div>
+            <div class="field">
+              <label>每轮复习题数</label>
+              <div class="input">12</div>
+            </div>
+            <div class="field">
+              <label>新题占比上限</label>
+              <div class="input">30%</div>
+            </div>
+            <div class="field">
+              <label>答错后重现间隔</label>
+              <div class="input">15 分钟</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>手动操作区</h3>
+          <p>这部分不强调炫技，而是给用户明确、低心智负担的管理入口。</p>
+          <div class="button-row">
+            <button class="btn secondary">测试连接</button>
+            <button class="btn secondary">增量同步题库</button>
+            <button class="btn primary">重新生成选中文档题目</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      这个 HTML 只是设计 mockup，不代表最终像素实现。当前重点是确认三个东西：视觉方向是否够有吸引力、弹窗里的信息密度是否合适、设置页的分组是否足够清楚。
+    </div>
+  </div>
+</body>
+</html>
